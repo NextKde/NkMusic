@@ -1,3 +1,7 @@
+if(NOT TARGET kos_icons)
+    add_subdirectory(../Icons kos-icons)
+endif()
+
 set_source_files_properties(
     foundation/AppTheme.qml
     i18n/I18n.qml
@@ -25,6 +29,9 @@ qt_add_qml_module(kos_ui
         foundation/KosWindowResizeHandles.qml
         foundation/KosButton.qml
         foundation/KosCard.qml
+        foundation/SettingsGroup.qml
+        foundation/SettingsItem.qml
+        foundation/SettingsAppearancePreview.qml
         foundation/KosWorkspaceDialog.qml
         foundation/KosItemDelegate.qml
         foundation/KosDialog.qml
@@ -39,6 +46,7 @@ qt_add_qml_module(kos_ui
         foundation/KosSwitch.qml
         foundation/KosTextField.qml
         foundation/KosToolButton.qml
+        foundation/KosToolTip.qml
         foundation/KosLyricLine.qml
         foundation/KosKineticScroll.qml
         foundation/KosKineticScrollPhysics.mjs
@@ -50,12 +58,21 @@ qt_add_qml_module(kos_ui
         controls/LiquidStyle.qml
         controls/LiquidBackdrop.qml
         controls/LiquidSurface.qml
+        controls/LiquidGlassNumber.qml
         controls/LiquidOuterShadow.qml
         controls/LiquidCard.qml
         controls/LiquidActionButton.qml
+        controls/LiquidActionButtonGroup.qml
         controls/LiquidNavigationButton.qml
         controls/LiquidCheckBox.qml
+        controls/LiquidContentPopover.qml
+        controls/LiquidPopover.qml
+        controls/LiquidPopoverItem.qml
+        controls/LiquidPopoverSurface.qml
         controls/LiquidDialog.qml
+        controls/LiquidDialogButton.qml
+        controls/LiquidDialogSurface.qml
+        controls/LiquidPanelSurface.qml
         controls/LiquidGlassSwitch.qml
         controls/LiquidSlider.qml
         controls/LiquidSelect.qml
@@ -64,6 +81,14 @@ qt_add_qml_module(kos_ui
         controls/LiquidSegmentedControl.qml
         controls/SelectionHighlight.qml
     RESOURCES
+        controls/shaders/liquid_dialog.vert
+        controls/shaders/liquid_dialog.frag
+        controls/shaders/liquid_dialog.vert.qsb
+        controls/shaders/liquid_dialog.frag.qsb
+        controls/shaders/liquid_number.vert
+        controls/shaders/liquid_number.vert.qsb
+        controls/shaders/liquid_number.frag
+        controls/shaders/liquid_number.frag.qsb
         controls/shaders/liquid_highlight_full_extended.frag
         controls/shaders/liquid_highlight_full_extended.frag.qsb
         controls/shaders/liquid_highlight_full_extended_fallback.frag
@@ -119,6 +144,7 @@ add_library(Kos::Ui ALIAS kos_ui)
 add_library(Kos::UiPlugin ALIAS kos_ui_plugin)
 
 target_link_libraries(kos_ui PUBLIC
+    Kos::Icons Kos::IconsPlugin
     Qt6::Core
     Qt6::Gui
     Qt6::Qml

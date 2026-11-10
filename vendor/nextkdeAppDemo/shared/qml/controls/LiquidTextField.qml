@@ -3,6 +3,9 @@ import QtQuick.Controls
 import QtQuick.Window
 import "../foundation" as Foundation
 
+// Match action-button heights at the same placement: inline 20 (provisional),
+// secondary Dialog 24, toolbar 26, ordinary content 28, important Dialog 30.
+// Liquid fields stay capsules; compact solid fields below 28 use 6px corners.
 TextField {
     id: root
     // Plain input inside a host-owned navigation material; opt-in only.
@@ -10,7 +13,27 @@ TextField {
     property string liquidIntensity: LiquidStyle.intensityLevel
     readonly property var _intensity: LiquidStyle.intensityProfile(liquidIntensity)
     opacity: specificationForm && !enabled ? .38 : 1
-    implicitHeight: 34
+    implicitHeight: Foundation.AppTheme.compactDesign ? 28 : 34
+    Binding {
+        target: root; property: "font.pixelSize"
+        value: Foundation.AppTheme.compactControlFontSize; when: Foundation.AppTheme.compactDesign
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+    Binding {
+        target: root; property: "font.weight"
+        value: Font.Normal; when: Foundation.AppTheme.compactDesign
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+    Binding {
+        target: root; property: "topPadding"
+        value: root.height < 26 ? 2 : 4; when: Foundation.AppTheme.compactDesign
+        restoreMode: Binding.RestoreBindingOrValue
+    }
+    Binding {
+        target: root; property: "bottomPadding"
+        value: root.height < 26 ? 2 : 4; when: Foundation.AppTheme.compactDesign
+        restoreMode: Binding.RestoreBindingOrValue
+    }
     leftPadding: 12
     rightPadding: 12
     verticalAlignment: TextInput.AlignVCenter
@@ -18,10 +41,13 @@ TextField {
 
     property color glassColor: darkAppearance
         ? Qt.rgba(32 / 255, 37 / 255, 47 / 255, .20) : Qt.rgba(1, 1, 1, .20)
-    property real cornerRadius: specificationForm ? 10 : height
+    property real cornerRadius: Foundation.AppTheme.compactDesign
+        && (specificationForm || materialForm) && height < 28 ? 6 : height / 2
     property color outlineColor: Qt.rgba(1, 1, 1, 0.08)
     property color focusedOutlineColor: Foundation.AppTheme.focusRing
-    property color textColor: Foundation.AppTheme.text
+    property color textColor: _liquid
+        ? (darkAppearance ? "#D6D6DA" : "#55555A")
+        : (darkAppearance ? Foundation.AppTheme.text : "#000000")
     property color mutedTextColor: Foundation.AppTheme.mutedText
     property bool materialForm: ControlForm.materialForm
     property bool unfilteredBackdrop: false
@@ -44,16 +70,18 @@ TextField {
     readonly property bool sampling: _liquid && liquidSurface.sampling
     readonly property bool _liquid: liquidFinish && !materialForm && !specificationForm
     readonly property color _fill: specificationForm
-        ? (darkAppearance ? Qt.rgba(1, 1, 1, .06) : Qt.rgba(0, 0, 0, .06))
+        ? Foundation.AppTheme.controlBackground
         : Qt.rgba(glassColor.r, glassColor.g, glassColor.b,
         Math.min(1, glassColor.a + (_liquid ? (hover.hovered ? .05 : 0)
             : (hover.hovered ? .035 : 0))))
 
     color: textColor
     placeholderTextColor: mutedTextColor
-    selectionColor: Foundation.AppTheme.accent
-    selectedTextColor: Foundation.AppTheme.accentText
-    scale: _liquid && hover.hovered ? 1.01 : 1
+    selectionColor: _liquid
+        ? (darkAppearance ? Qt.rgba(1, 1, 1, 0.24) : Qt.rgba(0, 0, 0, 0.16))
+        : Foundation.AppTheme.accent
+    selectedTextColor: _liquid ? textColor : Foundation.AppTheme.accentText
+    scale: !Foundation.AppTheme.compactDesign && _liquid && hover.hovered ? 1.01 : 1
     Behavior on scale {
         NumberAnimation { duration: root.reduceMotion ? 0 : Foundation.AppTheme.motionFast; easing.type: Easing.OutCubic }
     }
@@ -79,14 +107,13 @@ TextField {
         }
         Rectangle {
             anchors.fill: parent
-            // Qt Rectangle borders stroke inward: expand by gap + stroke.
-            // One ring only; keep the field's own border disabled in this form.
-            anchors.margins: -4
-            radius: root.cornerRadius + 2
+            // Solid fields show focus on the edge; liquid fields keep their glass edge.
+            z: 2
+            radius: root.cornerRadius
             color: "transparent"
             border.width: 2
             border.color: root.focusedOutlineColor
-            visible: root.specificationForm && root.activeFocus && root.enabled
+            visible: !root._liquid && root.activeFocus && root.enabled
         }
         LiquidSurface {
             id: liquidSurface

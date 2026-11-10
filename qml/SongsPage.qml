@@ -17,6 +17,7 @@ ColumnLayout {
     property bool albumView: false
     property Component headerContent: null
     property string emptyMessage: page.queueView ? Language.text("Your queue is empty", "播放队列为空") : Language.text("No songs here yet", "暂无歌曲")
+    property Item detailsAnchorItem: null
     signal detailsRequested(int row)
     signal saveToPlaylistRequested(int row)
     property bool queueView: false
@@ -90,7 +91,7 @@ ColumnLayout {
                     implicitWidth: 30; implicitHeight: 30
                     objectName: row.index === 0 ? (page.onlineView ? "reviewFavoriteOnlineFirst" : page.albumView ? "reviewFavoriteAlbumFirst" : "reviewFavoriteLocalFirst") : ""
                     Accessible.name: row.localFavorite ? Language.text("Remove local favorite", "取消本机收藏") : Language.text("Add local favorite", "加入本机收藏")
-                    ToolTip.text: Accessible.name; ToolTip.visible: hovered
+                    hint: Accessible.name
                     onClicked: page.music.toggleTrackFavorite(page.onlineView ? "online" : page.albumView ? "album" : "library", page.onlineView || page.albumView ? row.index : row.trackId)
                 }
                 MusicActionButton { iconOnly: true;
@@ -108,15 +109,15 @@ ColumnLayout {
                 }
                 MusicActionButton {
                     visible: page.playlistView
-                    iconOnly: true; text: "−"; implicitWidth: 30; implicitHeight: 30
+                    iconOnly: true; iconName: "minus"; implicitWidth: 30; implicitHeight: 30
                     Accessible.name: Language.text("Remove from playlist", "从歌单移除")
-                    ToolTip.text: Accessible.name; ToolTip.visible: hovered
+                    hint: Accessible.name
                     onClicked: page.music.removeTrackFromPlaylist(page.playlistId, row.trackId)
                 }
                 MusicActionButton {
                     iconOnly: true
                     visible: !page.queueView && !page.albumView; text: "···"; implicitWidth: 34; implicitHeight: 30
-                    Accessible.name: page.onlineView ? Language.text("Song details", "歌曲详情") : Language.text("Add to playlist", "加入歌单"); onClicked: { if (page.onlineView) page.detailsRequested(row.index); else page.addToPlaylistRequested(row.trackId) }
+                    Accessible.name: page.onlineView ? Language.text("Song details", "歌曲详情") : Language.text("Add to playlist", "加入歌单"); onClicked: { if (page.onlineView) { page.detailsAnchorItem = this; page.detailsRequested(row.index); } else page.addToPlaylistRequested(row.trackId) }
                 }
             }
         }

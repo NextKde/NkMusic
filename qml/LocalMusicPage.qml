@@ -132,7 +132,7 @@ ColumnLayout {
                 MusicActionButton { text: Language.text("Favorites", "喜欢的音乐"); onClicked: { page.section = "favorites"; page.detailTitle = text } }
                 MusicActionButton { text: Language.text("Recently Played", "最近播放"); onClicked: { page.section = "recent"; page.detailTitle = text } }
                 Item { Layout.fillWidth: true }
-                MusicActionButton { text: Language.text("New playlist", "新建歌单"); onClicked: { playlistEditor.editId = -1; playlistName.text = ""; playlistEditor.open() } }
+                MusicActionButton { text: Language.text("New playlist", "新建歌单"); onClicked: { playlistEditor.anchorItem = this; playlistEditor.editId = -1; playlistName.text = ""; playlistEditor.open() } }
             }
             Label { text: Language.text("Your playlists on this device", "本机歌单"); color: AppTheme.text; font.pixelSize: 18; font.weight: Font.DemiBold }
             Label { visible: !page.music.playlists.length; Layout.fillWidth: true; wrapMode: Text.WordWrap; text: Language.text("Create a playlist, then add songs from the song menu.", "创建歌单后，可从歌曲菜单添加歌曲。"); color: AppTheme.mutedText }
@@ -143,7 +143,7 @@ ColumnLayout {
                     required property var modelData
                     Layout.fillWidth: true
                     MusicNavigationButton { Layout.fillWidth: true; text: playlistRow.modelData.name; onClicked: { page.playlistId = playlistRow.modelData.id; page.music.selectPlaylist(page.playlistId); page.detailTitle = playlistRow.modelData.name; page.section = "playlist" } }
-                    MusicActionButton { text: Language.text("Rename", "重命名"); onClicked: { playlistEditor.editId = playlistRow.modelData.id; playlistName.text = playlistRow.modelData.name; playlistEditor.open() } }
+                    MusicActionButton { text: Language.text("Rename", "重命名"); onClicked: { playlistEditor.anchorItem = this; playlistEditor.editId = playlistRow.modelData.id; playlistName.text = playlistRow.modelData.name; playlistEditor.open() } }
                     MusicActionButton { text: Language.text("Remove", "移除"); onClicked: { removePlaylistDialog.editId = playlistRow.modelData.id; removePlaylistDialog.playlistTitle = playlistRow.modelData.name; removePlaylistDialog.open() } }
                 }
             }
@@ -155,17 +155,17 @@ ColumnLayout {
         showHeading: false; music: page.music; bottomContentInset: page.bottomContentInset
         onImportRequested: page.importRequested()
     }
-    LiquidDialog {
+    MusicContentPopover {
         id: playlistEditor
         property double editId: -1
-        parent: Overlay.overlay; anchors.centerIn: parent; width: 360; modal: true
+        width: 360; preferredSide: "bottom"
         title: editId < 0 ? Language.text("New playlist", "新建歌单") : Language.text("Rename playlist", "重命名歌单")
         standardButtons: Dialog.Ok | Dialog.Cancel
         contentItem: MusicTextField { id: playlistName; placeholderText: Language.text("Playlist name", "歌单名称"); maximumLength: 128 }
         onOpened: { standardButton(Dialog.Ok).enabled = Qt.binding(() => playlistName.text.trim().length > 0); playlistName.forceActiveFocus() }
         onAccepted: { if (editId < 0) page.music.createPlaylist(playlistName.text); else page.music.renamePlaylist(editId, playlistName.text) }
     }
-    LiquidDialog {
+    MusicDialog {
         id: removePlaylistDialog
         property double editId: -1
         property string playlistTitle: ""

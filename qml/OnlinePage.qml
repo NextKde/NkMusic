@@ -28,7 +28,7 @@ Item {
         showHeading: false; topContentInset: fixedHeader.height + 12
         music: page.music; bottomContentInset: page.bottomContentInset; trackModel: page.music.onlineModel; onlineView: true
         onSaveToPlaylistRequested: row => page.saveToPlaylistRequested(row)
-        onDetailsRequested: row => { page.music.requestOnlineDetail(row); details.open() }
+        onDetailsRequested: row => { details.anchorItem = detailsAnchorItem; page.music.requestOnlineDetail(row); details.open() }
     }
     CollectionList {
         id: collections
@@ -86,9 +86,9 @@ Item {
             }
         }
     }
-    LiquidDialog {
+    MusicContentPopover {
         id: details
-        anchors.centerIn: parent; width: 440; modal: true; title: Language.text("Song details", "歌曲详情"); standardButtons: Dialog.Close
+        width: 400; title: Language.text("Song details", "歌曲详情"); standardButtons: Dialog.Close
         contentItem: ColumnLayout {
             spacing: 14
             Artwork { Layout.preferredWidth: 160; Layout.preferredHeight: 160; source: page.music.onlineDetail.artwork || ""; title: page.music.onlineDetail.title || "" }

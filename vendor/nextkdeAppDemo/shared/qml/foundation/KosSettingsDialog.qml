@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "../../Icons" as Symbols
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -81,11 +82,11 @@ KosDialog {
                 color: AppTheme.withAlpha(AppTheme.accent,
                                           AppTheme.dark ? 0.22 : 0.14)
 
-                Label {
+                Symbols.Icon {
                     anchors.centerIn: parent
-                    text: "⚙"
+                    name: "gear_alt"
                     color: AppTheme.accent
-                    font.pixelSize: 20
+                    size: 20
                 }
             }
 
@@ -107,11 +108,10 @@ KosDialog {
             }
 
             KosToolButton {
-                text: "×"
-                font.pixelSize: 18
+                id: closeSettingsButton
+                contentItem: Symbols.Icon { name: "xmark"; color: AppTheme.text; size: 18 }
                 Accessible.name: qsTr("Close settings")
-                ToolTip.visible: hovered
-                ToolTip.text: Accessible.name
+                KosToolTip { target: closeSettingsButton; text: closeSettingsButton.Accessible.name }
                 onClicked: root.close()
             }
         }
@@ -302,13 +302,12 @@ KosDialog {
                             Accessible.role: Accessible.RadioButton
                             Accessible.name: modelData.label
                             Accessible.checked: checked
-                            ToolTip.visible: hovered
-                            ToolTip.text: modelData.label
+                            KosToolTip { target: accentButton; text: accentButton.Accessible.name }
                             onClicked: if (root.settings)
                                 root.settings.accentName = modelData.key
 
-                            contentItem: Label {
-                                text: accentButton.checked ? "✓" : ""
+                            contentItem: Symbols.Icon {
+                                name: "checkmark"; visible: accentButton.checked; size: 14
                                 color: AppTheme.contrastRatio(
                                            accentButton.modelData.color,
                                            AppTheme.blackSeed)
@@ -316,9 +315,9 @@ KosDialog {
                                            accentButton.modelData.color,
                                            AppTheme.whiteSeed)
                                     ? AppTheme.blackSeed : AppTheme.whiteSeed
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                font.weight: Font.Bold
+
+
+
                             }
 
                             background: Rectangle {

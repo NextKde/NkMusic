@@ -2,6 +2,8 @@
 
 ## Current user overrides (2026-10-23)
 
+- Latest component contract: docs/ComponentContract.zh-CN.md (English: docs/ComponentContract.md), synchronized on 2026-10-28. It supersedes older control, popup, settings-row and tooltip styling guidance.
+
 - Bilibili research may examine Biu backend architecture/protocol flow, but do not
   copy, translate or port Biu source code into KMusic. Implement independently
   and preserve the existing GPL/AGPL licensing and source attribution.

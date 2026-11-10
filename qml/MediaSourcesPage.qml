@@ -82,7 +82,7 @@ ScrollView {
                         Label { textFormat: Text.PlainText; Layout.fillWidth: true; text: modelData.artist + " · " + modelData.album; elide: Text.ElideRight; color: AppTheme.mutedText; font.pixelSize: 12 }
                     }
                     MusicActionButton { iconOnly: true; iconName: "mediaPlay"; Accessible.name: Language.text("Play", "播放"); onClicked: page.music.playMediaSong(index) }
-                    MusicActionButton { text: "+"; Accessible.name: Language.text("Add to queue", "加入队列"); onClicked: page.music.playMediaSong(index, true) }
+                    MusicActionButton { iconName: "plus"; iconOnly: true; Accessible.name: Language.text("Add to queue", "加入队列"); onClicked: page.music.playMediaSong(index, true) }
                 }
             }
         }
@@ -90,25 +90,19 @@ ScrollView {
         MusicActionButton { visible: page.server.connected && page.server.more; enabled: !page.server.busy; text: Language.text("Load more", "加载更多"); onClicked: page.view === "albums" ? page.server.browseAlbums(true) : page.server.search(page.submittedQuery, true) }
         Item { Layout.preferredHeight: page.bottomContentInset + 24 }
     }
-    LiquidDialog {
+    MusicDialog {
         id: connection
         parent: Overlay.overlay; anchors.centerIn: parent
         width: Math.min(420, parent.width - 40)
         modal: true; dim: true
         title: Language.text("Connect music server", "连接音乐服务器")
         standardButtons: Dialog.NoButton
-        padding: 20
-        header: Label {
-            text: connection.title; color: AppTheme.text
-            font.pixelSize: 18; font.weight: Font.DemiBold
-            leftPadding: 20; rightPadding: 20; topPadding: 20; bottomPadding: 8
-        }
         onOpened: { address.text = page.server.server; username.text = page.server.username; password.text = "" }
         onClosed: password.text = ""
         component Field: MusicTextField {
             Layout.fillWidth: true
             implicitHeight: 36; font.pixelSize: 13
-            materialForm: true; cornerRadius: 8
+            materialForm: true
             glassColor: AppTheme.dark ? "#39393e" : "#f0f0f3"
             outlineColor: activeFocus ? AppTheme.withAlpha(AppTheme.text, .24) : "transparent"
         }
@@ -147,11 +141,12 @@ ScrollView {
             implicitHeight: 60
             RowLayout {
                 anchors.centerIn: parent; spacing: 10
-                MusicActionButton {
+                LiquidDialogButton {
                     text: Language.text("Cancel", "取消")
                     onClicked: connection.reject()
                 }
-                MusicActionButton {
+                LiquidDialogButton {
+                    primaryAction: true
                     text: Language.text("Connect", "连接")
                     enabled: address.text.trim().length > 0 && username.text.trim().length > 0 && password.text.length > 0
                     surfaceColor: AppTheme.dark ? "#ededf0" : "#303036"
