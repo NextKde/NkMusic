@@ -87,7 +87,18 @@ int main(int argc, char *argv[]) {
             auto *window = qobject_cast<QQuickWindow *>(engine.rootObjects().first());
             if (!window) return;
             const QString action = data.value("action").toString();
-            if (action == "capture") {
+            if (action == "windowControls") {
+                auto *controls = findReviewItem(window->contentItem(), QStringLiteral("windowControls"));
+                auto *client = findReviewItem(window->contentItem(), QStringLiteral("clientWindowControls"));
+                const bool ready = controls && controls->property("platformReady").toBool();
+                const bool active = controls && controls->property("compositorActive").toBool();
+                QFile response(QDir(reviewDir).filePath("response.json"));
+                if (response.open(QIODevice::WriteOnly)) response.write(QJsonDocument(QJsonObject{
+                    {"platformReady", ready}, {"compositorActive", active},
+                    {"clientOpacity", client ? client->opacity() : -1},
+                    {"clientEnabled", client && client->isEnabled()}
+                }).toJson());
+            } else if (action == "capture") {
                 // Dedicated review must never capture sign-in codes or account identity.
                 if (window->property("sensitiveContentVisible").toBool()) {
                     QFile response(QDir(reviewDir).filePath("response.json"));
