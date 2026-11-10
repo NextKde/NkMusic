@@ -6,6 +6,7 @@ import MusicWindowTests
 TestCase {
     name: "CooperativeControls"
     when: windowShown
+    visible: true
     width: 400; height: 200
     Component { id: mock; Item {
         property Item target
