@@ -45,7 +45,7 @@ def import_revision(source, revision):
         raise ValueError('Upstream origin must be NextKde/nextkdeAppDemo')
     if git('rev-parse', revision + '^{commit}').decode().strip() != revision:
         raise ValueError('Revision is not an exact commit')
-    entries = git('ls-tree', '-rz', revision, '--', 'shared/qml', 'LICENSE', 'NOTICE.md').split(b'\0')
+    entries = git('ls-tree', '-rz', revision, '--', 'shared/qml', 'shared/Icons', 'LICENSE', 'NOTICE.md').split(b'\0')
     with tempfile.TemporaryDirectory(prefix='kos-ui-import-', dir=DEST.parent) as td:
         snapshot = Path(td) / 'snapshot'; snapshot.mkdir()
         files = {}

@@ -26,3 +26,9 @@ Enter submission/closing, blank-query rejection and source-separated persisted
 history are checked. A dedicated NextKdeTests/KMusicInputTests identity and the
 XDG_CONFIG_HOME above keep settings separate from the player. No account data is
 loaded by this fixture.
+
+
+The Demo contract integration checks also exercise anchored content Popover
+acceptance, canonical 30px primary/disabled footer actions, and keyboard selection
+through the value-only compact MusicSelect wrapper. Runtime rendering and
+whole-app settings layout are reviewed separately in the VM.

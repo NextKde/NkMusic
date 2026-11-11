@@ -3,18 +3,21 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Kos.Ui
 import "UiLanguage.mjs" as Language
-LiquidCard {
+Pane {
     id: bar
     required property var music
     property real lastCommittedSeek: -1
     signal queueRequested()
     signal nowPlayingRequested()
-    height: 52; radius: height / 2; padding: 8
-    shadowEnabled: true; shadowOpacity: AppTheme.dark ? .22 : .14
-    tintColor: AppTheme.dark ? "#282c32" : "#f8f9fa"
-    tintStrength: .50
-    readability: .12; blurStrength: 0
-    refractionStrength: 5; magnification: 1.035; reflectionStrength: .55
+    property LiquidBackdrop backdrop: null
+    readonly property real radius: height / 2
+    readonly property bool sampling: playerSurface.sampling
+    height: 52; padding: 8
+    background: LiquidPanelSurface {
+        id: playerSurface
+        cornerRadius: bar.radius
+        backdrop: bar.backdrop
+    }
     function reviewState() {
         return { sampling: bar.sampling, seekValue: seekSlider.value, volume: volumeSlider.value,
             playHovered: playAction.hovered, playDown: playAction.down, playVisualFocus: playAction.visualFocus,
@@ -27,11 +30,11 @@ LiquidCard {
         RowLayout {
             Layout.preferredWidth: 164; Layout.maximumWidth: 164
             Layout.alignment: Qt.AlignVCenter; spacing: 5
-            MusicActionButton { backdrop: null; iconOnly: true; iconName: "shuffle"; implicitWidth: 24; implicitHeight: 26; flat: true; checked: bar.music.shuffle; onClicked: bar.music.shuffle = !bar.music.shuffle; Accessible.name: Language.text("Shuffle", "随机播放"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
-            MusicActionButton { backdrop: null; iconOnly: true; iconName: "mediaPrevious"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 28; implicitHeight: 26; flat: true; enabled: bar.music.canGoPrevious; onClicked: bar.music.previous(); Accessible.name: Language.text("Previous", "上一首"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
-            MusicActionButton { id: playAction; backdrop: null; objectName: "reviewPlayerPlay"; iconOnly: true; iconName: bar.music.playbackState === "Playing" ? "mediaPause" : "mediaPlay"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 30; implicitHeight: 28; flat: true; enabled: bar.music.currentTrackId > 0; onClicked: bar.music.togglePlayPause(); Accessible.name: Language.text("Play or pause", "播放或暂停"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
-            MusicActionButton { backdrop: null; iconOnly: true; iconName: "mediaNext"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 28; implicitHeight: 26; flat: true; enabled: bar.music.canGoNext; onClicked: bar.music.next(); Accessible.name: Language.text("Next", "下一首"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
-            MusicActionButton { backdrop: null; iconOnly: true; iconName: "repeat"; implicitWidth: 24; implicitHeight: 26; flat: true; checked: bar.music.repeatMode !== "none"; onClicked: bar.music.repeatMode = bar.music.repeatMode === "none" ? "playlist" : bar.music.repeatMode === "playlist" ? "track" : "none"; Accessible.name: Language.text("Repeat mode", "循环模式"); ToolTip.text: bar.music.repeatMode === "track" ? Language.text("Repeat one", "单曲循环") : bar.music.repeatMode === "playlist" ? Language.text("Repeat all", "列表循环") : Language.text("Repeat off", "关闭循环"); ToolTip.visible: hovered }
+            MusicActionButton { backdrop: null; iconOnly: true; iconName: "shuffle"; implicitWidth: 24; implicitHeight: 26; flat: true; checked: bar.music.shuffle; onClicked: bar.music.shuffle = !bar.music.shuffle; Accessible.name: Language.text("Shuffle", "随机播放"); hint: Accessible.name }
+            MusicActionButton { backdrop: null; iconOnly: true; iconName: "mediaPrevious"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 28; implicitHeight: 26; flat: true; enabled: bar.music.canGoPrevious; onClicked: bar.music.previous(); Accessible.name: Language.text("Previous", "上一首"); hint: Accessible.name }
+            MusicActionButton { id: playAction; backdrop: null; objectName: "reviewPlayerPlay"; iconOnly: true; iconName: bar.music.playbackState === "Playing" ? "mediaPause" : "mediaPlay"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 30; implicitHeight: 28; flat: true; enabled: bar.music.currentTrackId > 0; onClicked: bar.music.togglePlayPause(); Accessible.name: Language.text("Play or pause", "播放或暂停"); hint: Accessible.name }
+            MusicActionButton { backdrop: null; iconOnly: true; iconName: "mediaNext"; iconFilled: true; iconSize: 20; iconColor: AppTheme.text; implicitWidth: 28; implicitHeight: 26; flat: true; enabled: bar.music.canGoNext; onClicked: bar.music.next(); Accessible.name: Language.text("Next", "下一首"); hint: Accessible.name }
+            MusicActionButton { backdrop: null; iconOnly: true; iconName: "repeat"; implicitWidth: 24; implicitHeight: 26; flat: true; checked: bar.music.repeatMode !== "none"; onClicked: bar.music.repeatMode = bar.music.repeatMode === "none" ? "playlist" : bar.music.repeatMode === "playlist" ? "track" : "none"; Accessible.name: Language.text("Repeat mode", "循环模式"); hint: bar.music.repeatMode === "track" ? Language.text("Repeat one", "单曲循环") : bar.music.repeatMode === "playlist" ? Language.text("Repeat all", "列表循环") : Language.text("Repeat off", "关闭循环") }
         }
         Item {
             Layout.fillWidth: true; Layout.minimumWidth: 180; Layout.fillHeight: true
@@ -64,15 +67,16 @@ LiquidCard {
         RowLayout {
             Layout.alignment: Qt.AlignVCenter; spacing: 8
             Rectangle {
+                id: previewBadge
                 visible: bar.music.playbackSession.availability === "preview"
                 Layout.preferredWidth: 40; Layout.preferredHeight: 20; radius: 10
                 color: MusicColors.previewBadgeSurface
                 Label { anchors.centerIn: parent; text: Language.text("Preview", "试听"); color: MusicColors.previewBadgeText; font.pixelSize: 9; font.weight: Font.DemiBold }
-                ToolTip.text: bar.music.providerStatus; ToolTip.visible: badgeHover.hovered
+                KosToolTip { target: previewBadge; text: bar.music.providerStatus; hovered: badgeHover.hovered }
                 HoverHandler { id: badgeHover }
             }
-            MusicActionButton { backdrop: null; iconOnly: true; iconName: "queueList"; iconColor: AppTheme.text; iconSize: 18; implicitWidth: 26; implicitHeight: 26; flat: true; onClicked: bar.queueRequested(); Accessible.name: Language.text("Queue", "播放队列"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
-            MusicActionButton { id: volumeAction; objectName: "reviewPlayerVolumeButton"; backdrop: null; iconOnly: true; iconName: "volume"; iconColor: AppTheme.text; iconSize: 18; implicitWidth: 26; implicitHeight: 26; flat: true; onClicked: volumePopup.opened ? volumePopup.close() : volumePopup.open(); Accessible.name: Language.text("Volume", "音量"); ToolTip.text: Accessible.name; ToolTip.visible: hovered }
+            MusicActionButton { backdrop: null; iconOnly: true; iconName: "queueList"; iconColor: AppTheme.text; iconSize: 18; implicitWidth: 26; implicitHeight: 26; flat: true; onClicked: bar.queueRequested(); Accessible.name: Language.text("Queue", "播放队列"); hint: Accessible.name }
+            MusicActionButton { id: volumeAction; objectName: "reviewPlayerVolumeButton"; backdrop: null; iconOnly: true; iconName: "volume"; iconColor: AppTheme.text; iconSize: 18; implicitWidth: 26; implicitHeight: 26; flat: true; onClicked: volumePopup.opened ? volumePopup.close() : volumePopup.open(); Accessible.name: Language.text("Volume", "音量"); hint: Accessible.name }
         }
     }
     Popup {
@@ -81,10 +85,10 @@ LiquidCard {
         x: bar.width - width - 12; y: -height - 10
         width: 170; height: 48; padding: 12
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-        background: LiquidCard { radius: 24; shadowEnabled: true; backdrop: bar.backdrop; tintColor: bar.tintColor; tintStrength: .45; readability: .35 }
+        background: LiquidPanelSurface { cornerRadius: 24; backdrop: bar.backdrop }
         contentItem: LiquidSlider {
             id: volumeSlider; objectName: "reviewPlayerVolume"
-            trackHeight: 4; thumbWidth: 22; thumbHeight: 16; materialForm: false
+            trackHeight: 4; thumbWidth: 22; thumbHeight: 16; materialForm: true
             value: bar.music.volume; accentColor: MusicColors.sliderFill
             onPreviewChanged: value => bar.music.volume = value
             onCommitRequested: value => bar.music.volume = value

@@ -6,18 +6,18 @@ import Kos.Ui
 import "UiLanguage.mjs" as Language
 import "SearchHistory.mjs" as SearchHistory
 
-LiquidDialog {
+MusicContentPopover {
     id: dialog
     property string sourceId: "netease"
     property string initialQuery: ""
     readonly property var history: readHistory()[sourceId] || []
     signal searchRequested(string query)
     parent: Overlay.overlay
-    anchors.centerIn: parent
+    preferredSide: "bottom"
     width: Math.min(480, parent ? parent.width - 64 : 480)
-    modal: true; dim: true
+    modal: false; dim: false
     title: sourceId === "local" ? Language.text("Search local music", "搜索本地音乐") : Language.text("Search music", "搜索音乐")
-    standardButtons: Dialog.Close
+    standardButtons: Dialog.NoButton
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     onOpened: { query.text = initialQuery; query.forceActiveFocus(); query.selectAll() }
     Settings {
@@ -48,13 +48,12 @@ LiquidDialog {
                 searchField: true
                 id: query
                 Layout.fillWidth: true; implicitHeight: 36
-                materialForm: false; liquidFinish: true; liquidIntensity: "strong"
-                backdrop: dialog.contentBackdrop
+                materialForm: true
                 placeholderText: sourceId === "bilibili" ? Language.text("Videos or a BV link", "视频或 BV 链接") : Language.text("Songs, artists or albums", "歌曲、艺术家或专辑")
                 maximumLength: 200; font.pixelSize: 13
                 onAccepted: dialog.submit(text)
             }
-            MusicActionButton { materialForm: false; liquidIntensity: "strong"; backdrop: dialog.contentBackdrop; text: Language.text("Search", "搜索"); enabled: query.text.trim().length > 0; onClicked: dialog.submit(query.text) }
+            LiquidDialogButton { primaryAction: true; text: Language.text("Search", "搜索"); enabled: query.text.trim().length > 0; onClicked: dialog.submit(query.text) }
         }
         RowLayout {
             Layout.fillWidth: true
@@ -76,7 +75,7 @@ LiquidDialog {
                     onClicked: dialog.submit(modelData)
                 }
                 MusicActionButton {
-                    text: "×"; implicitWidth: 28; implicitHeight: 28
+                    iconName: "xmark"; iconOnly: true; implicitWidth: 28; implicitHeight: 28
                     Accessible.name: Language.text("Remove search", "移除搜索记录")
                     onClicked: dialog.storeHistory(dialog.history.filter((_, row) => row !== index))
                 }

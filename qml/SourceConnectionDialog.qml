@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import Kos.Ui
 import "UiLanguage.mjs" as Language
 
-LiquidDialog {
+MusicDialog {
     id: dialog
     property string sourceId: ""
     property string sourceName: ""
@@ -35,7 +35,7 @@ LiquidDialog {
             text: Language.text("This preview does not connect, save credentials or fetch a library. The example name lasts only for this app session.", "此示意不会连接服务器、保存凭据或获取音乐库。示例名称仅在本次运行中保留。")
             color: AppTheme.mutedText
         }
-        MusicActionButton {
+        LiquidDialogButton {
             text: Language.text("Use example name", "使用示例名称")
             enabled: aliasField.text.trim().length > 0
             onClicked: { dialog.useExample(aliasField.text.trim()); dialog.close() }

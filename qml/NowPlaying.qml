@@ -97,7 +97,7 @@ Item {
                     iconColor: page.music.currentFavorite ? MusicColors.sidebarAccent : page.foreground
                     implicitWidth: 30; implicitHeight: 30; enabled: page.music.currentTrackId > 0
                     Accessible.name: page.music.currentFavorite ? Language.text("Remove local favorite", "取消本机收藏") : Language.text("Add local favorite", "加入本机收藏")
-                    ToolTip.text: Accessible.name; ToolTip.visible: hovered
+                    hint: Accessible.name
                     onClicked: page.music.toggleTrackFavorite("current", 0)
                 }
             }
@@ -132,9 +132,9 @@ Item {
                 MusicActionButton { surfaceColor: "#33485f"; textColor: page.foreground; objectName: "reviewImmersivePlay"; flat: true; iconOnly: true; implicitWidth: 54; implicitHeight: 48; iconName: page.music.playbackState === "Playing" ? "mediaPause" : "mediaPlay"; iconFilled: true; iconSize: 32; iconColor: page.foreground; enabled: page.music.currentTrackId > 0; onClicked: page.music.togglePlayPause(); Accessible.name: Language.text("Play or pause", "播放或暂停") }
                 MusicActionButton { surfaceColor: "#33485f"; textColor: page.foreground; flat: true; iconOnly: true; iconName: "mediaNext"; iconFilled: true; iconSize: 28; iconColor: page.foreground; enabled: page.music.canGoNext; onClicked: page.music.next(); Accessible.name: Language.text("Next", "下一首") }
                 Item { Layout.fillWidth: true }
-                MusicActionButton { surfaceColor: "#33485f"; textColor: page.foreground; flat: true; iconOnly: true; iconName: "repeat"; iconColor: checked ? "#ffffff" : page.secondary; checked: page.music.repeatMode !== "none"; onClicked: page.music.repeatMode = page.music.repeatMode === "none" ? "playlist" : page.music.repeatMode === "playlist" ? "track" : "none"; Accessible.name: Language.text("Repeat mode", "循环模式"); ToolTip.text: page.music.repeatMode === "track" ? Language.text("Repeat one", "单曲循环") : page.music.repeatMode === "playlist" ? Language.text("Repeat all", "列表循环") : Language.text("Repeat off", "关闭循环"); ToolTip.visible: hovered }
+                MusicActionButton { surfaceColor: "#33485f"; textColor: page.foreground; flat: true; iconOnly: true; iconName: "repeat"; iconColor: checked ? "#ffffff" : page.secondary; checked: page.music.repeatMode !== "none"; onClicked: page.music.repeatMode = page.music.repeatMode === "none" ? "playlist" : page.music.repeatMode === "playlist" ? "track" : "none"; Accessible.name: Language.text("Repeat mode", "循环模式"); hint: page.music.repeatMode === "track" ? Language.text("Repeat one", "单曲循环") : page.music.repeatMode === "playlist" ? Language.text("Repeat all", "列表循环") : Language.text("Repeat off", "关闭循环") }
             }
-            Label { Layout.fillWidth: true; elide: Text.ElideRight; text: page.music.providerStatus; color: page.secondary; font.pixelSize: 11; ToolTip.text: text; ToolTip.visible: statusHover.hovered; HoverHandler { id: statusHover } }
+            Label { id: providerStatusLabel; Layout.fillWidth: true; elide: Text.ElideRight; text: page.music.providerStatus; color: page.secondary; font.pixelSize: 11; KosToolTip { target: providerStatusLabel; text: providerStatusLabel.text; hovered: statusHover.hovered; onlyWhenTruncated: true; truncated: providerStatusLabel.truncated } HoverHandler { id: statusHover } }
         }
         ColumnLayout {
             Layout.fillWidth: true; Layout.fillHeight: true; Layout.minimumWidth: 240; Layout.bottomMargin: 46; spacing: 18
@@ -285,27 +285,26 @@ Item {
         RowLayout {
             anchors.fill: parent; spacing: 2
             Button {
+                id: lyricsModeButton
                 Layout.fillWidth: true; Layout.fillHeight: true
                 padding: 0
                 Accessible.name: Language.text("Lyrics", "歌词")
                 checked: page.presentationMode === 1
                 onClicked: { page.music.lyricsEnabled = true; page.presentationMode = 1 }
-                ToolTip.text: Accessible.name; ToolTip.visible: hovered
+                KosToolTip { target: lyricsModeButton; text: lyricsModeButton.Accessible.name }
                 background: Rectangle { radius: height / 2; color: parent.checked ? "#30ffffff" : parent.hovered ? "#15ffffff" : "transparent" }
                 contentItem: Item {
-                    Image {
-                        anchors.centerIn: parent; width: 17; height: 17
-                        source: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8l-5 3v-3H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z M7 8h10M7 12h7" fill="none" stroke="#f5f7fa" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>')
-                    }
+                    VectorIcon { anchors.centerIn: parent; size: 17; name: "captions_bubble"; color: "#f5f7fa" }
                 }
             }
             Button {
+                id: queueModeButton
                 Layout.fillWidth: true; Layout.fillHeight: true
                 padding: 0
                 Accessible.name: Language.text("Queue", "播放队列")
                 checked: page.presentationMode === 0
                 onClicked: page.presentationMode = 0
-                ToolTip.text: Accessible.name; ToolTip.visible: hovered
+                KosToolTip { target: queueModeButton; text: queueModeButton.Accessible.name }
                 background: Rectangle { radius: height / 2; color: parent.checked ? "#30ffffff" : parent.hovered ? "#15ffffff" : "transparent" }
                 contentItem: Item { VectorIcon { anchors.centerIn: parent; width: 17; height: 17; name: "queueList"; size: 17; color: page.foreground } }
             }

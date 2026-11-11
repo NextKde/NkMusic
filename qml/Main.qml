@@ -10,6 +10,7 @@ import "UiLanguage.mjs" as Language
 import "MusicSourceCatalog.mjs" as SourceCatalog
 ApplicationWindow {
     id: window
+    readonly property Item musicPopupScene: appCanvas
     required property var music
     width: 1100; height: 680; minimumWidth: 1024; minimumHeight: 640
     visible: true; title: "KMusic"; color: "transparent"
@@ -102,7 +103,7 @@ ApplicationWindow {
     }
     function reviewBilibiliSearch(text) { selectSource("bilibili"); destination = "bilibili"; bilibiliPage.queryText = text; music.bilibili.search(text) }
     function reviewOnlineSearch(text) { window.selectSource("netease"); music.onlineSearchKind = "song"; destination = "online"; onlinePage.queryText = text; music.searchOnline(text) }
-    function openReviewSelect(name) { if (name === "quality") { destination = "online"; onlinePage.openQualityMenu() } else settingsMenu.popup() }
+    function openReviewSelect(name) { if (name === "quality") { destination = "online"; onlinePage.openQualityMenu() } else { window.openPrimary("settings") } }
     function reviewMaterialAction(action, index) { destination = "now"; nowPlaying.reviewMaterialAction(action, index) }
     function materialReviewState() {
         const state = JSON.parse(nowPlaying.materialReviewState())
@@ -152,6 +153,7 @@ ApplicationWindow {
         property bool smoothLyrics: true
     }
     Component.onCompleted: {
+        AppTheme.compactDesign = true
         AppTheme.appearanceMode = userPreferences.appearance
         AppTheme.reduceMotion = userPreferences.reducedMotion
         if (userPreferences.rememberWindowSize) {
@@ -210,6 +212,7 @@ ApplicationWindow {
     font.family: "Inter"; font.pixelSize: 13
     Item {
         id: appCanvas
+        readonly property var toolTipBackdrop: popupBackdrop
         anchors.fill: parent
         Item {
             id: pageScene
@@ -467,8 +470,7 @@ ApplicationWindow {
                             padding: 0
                             enabled: window.selectedSource === "netease" || window.selectedSource === "bilibili" || window.selectedSource === "local"
                             Accessible.name: Language.text("Search", "搜索")
-                            ToolTip.text: Language.text("Search · Ctrl+F", "搜索 · Ctrl+F")
-                            ToolTip.visible: hovered
+                            KosToolTip { target: headerSearchButton; text: Language.text("Search · Ctrl+F", "搜索 · Ctrl+F") }
                             Shortcut {
                                 sequences: [StandardKey.Find]
                                 enabled: headerSearchButton.visible && headerSearchButton.enabled
@@ -489,11 +491,13 @@ ApplicationWindow {
                             visible: window.navigationArea === "discover" || window.navigationArea === "personal" || window.navigationArea === "local"
                             enabled: window.navigationArea !== "local" || music.ready
                             Accessible.name: window.navigationArea === "local" ? Language.text("Import music", "导入音乐") : Language.text("Switch platform", "切换平台")
-                            onClicked: { if (window.navigationArea === "local") folderDialog.open(); else platformMenu.popup() }
-                            Menu {
+                            onClicked: { if (window.navigationArea === "local") folderDialog.open(); else platformMenu.openAtAnchor() }
+                            LiquidPopover {
                                 id: platformMenu
-                                MenuItem { text: Language.text("NetEase Cloud Music", "网易云音乐"); onTriggered: window.selectSource("netease") }
-                                MenuItem { text: "Bilibili"; onTriggered: window.selectSource("bilibili") }
+                                anchorItem: platformButton
+                                sourceItem: window.musicPopupScene
+                                LiquidPopoverItem { text: Language.text("NetEase Cloud Music", "网易云音乐"); onTriggered: window.selectSource("netease") }
+                                LiquidPopoverItem { text: "Bilibili"; onTriggered: window.selectSource("bilibili") }
                             }
                             background: Rectangle { radius: height / 2; color: parent.hovered ? MusicColors.hoverFill : "transparent" }
                             contentItem: Item {
@@ -522,7 +526,7 @@ ApplicationWindow {
                     }
                     background: Rectangle { radius: width / 2; color: AppTheme.dark ? "#48484a" : "#d4d4d8" }
                     contentItem: Item {
-                        Image { anchors.centerIn: parent; width: 16; height: 16; source: MusicColors.sidebarIconSource("person", AppTheme.mutedText); fillMode: Image.PreserveAspectFit; visible: !avatarImage.visible || avatarImage.status !== Image.Ready }
+                        VectorIcon { anchors.centerIn: parent; size: 16; name: "person"; color: AppTheme.mutedText; visible: !avatarImage.visible || avatarImage.status !== Image.Ready }
                         Image {
                             id: avatarImage
                             anchors.fill: parent; source: headerAvatar.signedIn ? headerAvatar.account.avatarUrl : ""
@@ -536,6 +540,8 @@ ApplicationWindow {
             }
             SearchDialog {
                 id: searchPopup
+                anchorItem: headerSearchButton
+                sourceItem: window.musicPopupScene
                 sourceId: window.selectedSource
                 initialQuery: window.savedSourceSearch(window.selectedSource)
                 onSearchRequested: query => {
@@ -599,36 +605,12 @@ ApplicationWindow {
                     MusicNavigationButton { Layout.fillWidth: true; text: Language.text("Personal", "个人"); iconName: "person"; checked: window.navigationArea === "personal"; onClicked: window.openPrimary("personal") }
                     Label { text: Language.text("Local & Sources", "本地与媒体源"); color: MusicColors.sidebarLabelSecondary; font.pixelSize: MusicColors.sidebarCaptionSize; font.weight: Font.DemiBold; Layout.topMargin: MusicColors.sidebarGroupGap; Layout.leftMargin: MusicColors.sidebarControlInset }
                     MusicNavigationButton { Layout.fillWidth: true; text: Language.text("Local Music", "本地音乐"); iconName: "folder"; checked: window.navigationArea === "local"; onClicked: window.openPrimary("local") }
-                    MusicNavigationButton { Layout.fillWidth: true; text: Language.text("Media Sources", "媒体源"); iconName: "album"; checked: window.navigationArea === "media"; onClicked: window.openPrimary("media") }
+                    MusicNavigationButton { Layout.fillWidth: true; text: Language.text("Media Sources", "媒体源"); iconName: "music_albums"; checked: window.navigationArea === "media"; onClicked: window.openPrimary("media") }
                     MusicNavigationButton { Layout.fillWidth: true; Layout.topMargin: MusicColors.sidebarGroupGap; text: Language.text("Settings", "设置"); iconName: "settings"; checked: window.navigationArea === "settings"; onClicked: window.openPrimary("settings") }
                     Item { implicitHeight: MusicColors.sidebarGroupGap }
                 }
             }
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.margins: MusicColors.sidebarPadding
-                spacing: 8
-                visible: false
-                RowLayout {
-                    Layout.fillWidth: true; spacing: 8
-                    MusicActionButton {
-                        id: settingsButton
-                        visible: false
-                        iconOnly: true; iconName: "settings"; implicitWidth: 28; implicitHeight: 28; flat: true
-                        Accessible.name: Language.text("Settings", "设置")
-                        onClicked: settingsMenu.popup()
-                        Menu {
-                            id: settingsMenu
-                            Menu {
-                                title: Language.text("Appearance", "外观")
-                                MenuItem { text: Language.text("System", "跟随系统"); checkable: true; checked: AppTheme.appearanceMode === "system"; onTriggered: AppTheme.appearanceMode = "system" }
-                                MenuItem { text: Language.text("Light appearance", "浅色模式"); checkable: true; checked: AppTheme.appearanceMode === "light"; onTriggered: AppTheme.appearanceMode = "light" }
-                                MenuItem { text: Language.text("Dark appearance", "深色模式"); checkable: true; checked: AppTheme.appearanceMode === "dark"; onTriggered: AppTheme.appearanceMode = "dark" }
-                            }
-                        }
-                    }
-                }
-            }
+
         }
 
         }
@@ -655,6 +637,12 @@ ApplicationWindow {
         WindowChrome { z: nowPlaying.visible ? 30 : 0; width: parent.width; targetWindow: window }
 
     }
+    LiquidBackdrop {
+        id: popupBackdrop
+        sourceItem: appCanvas
+        registerAsDefault: false
+        blur: 0.85
+    }
     SourceConnectionDialog {
         id: sourceConnectionDialog
         onUseExample: alias => {
@@ -666,14 +654,14 @@ ApplicationWindow {
     AccountDialog { id: accountDialog; account: music.account }
     KosWindowResizeHandles { targetWindow: window }
     FolderDialog { id: folderDialog; title: Language.text("Import music folder", "导入音乐文件夹"); onAccepted: { window.openPrimary("local"); music.addLibraryFolder(selectedFolder.toString()) } }
-    LiquidDialog {
+    MusicDialog {
         id: playlistDialog; anchors.centerIn: parent; width: 360; modal: true; title: Language.text("New Playlist", "新建歌单"); standardButtons: Dialog.Ok | Dialog.Cancel
         onOpened: { playlistName.text = ""; playlistName.forceActiveFocus() }
         onClosed: playlistName.text = ""
-        contentItem: MusicTextField { id: playlistName; placeholderText: Language.text("Playlist name", "歌单名称"); materialForm: false; liquidFinish: true }
+        contentItem: MusicTextField { id: playlistName; placeholderText: Language.text("Playlist name", "歌单名称"); materialForm: true }
         onAccepted: { if (playlistName.text.trim()) music.createPlaylist(playlistName.text.trim()); playlistName.text = "" }
     }
-    LiquidDialog {
+    MusicDialog {
         id: addDialog; anchors.centerIn: parent; width: 360; modal: true; title: Language.text("Save to local playlist", "保存到本机歌单"); standardButtons: Dialog.Close
         onOpened: { newPlaylistName.text = ""; newPlaylistName.forceActiveFocus() }
         onClosed: { newPlaylistName.text = ""; music.clearPreparedPlaylistTrack() }
@@ -682,7 +670,7 @@ ApplicationWindow {
             RowLayout {
                 Layout.fillWidth: true
                 MusicTextField { id: newPlaylistName; materialForm: true; placeholderText: Language.text("New playlist name", "新歌单名称"); Layout.fillWidth: true }
-                MusicActionButton { objectName: "reviewCreateLocalPlaylist"; text: Language.text("Create", "创建"); enabled: newPlaylistName.text.trim().length > 0; onClicked: { music.createPlaylist(newPlaylistName.text.trim()); newPlaylistName.text = "" } }
+                LiquidDialogButton { primaryAction: true; objectName: "reviewCreateLocalPlaylist"; text: Language.text("Create", "创建"); enabled: newPlaylistName.text.trim().length > 0; onClicked: { music.createPlaylist(newPlaylistName.text.trim()); newPlaylistName.text = "" } }
             }
             Label { visible: music.playlists.length === 0; text: Language.text("Create a playlist above, then choose it to save this song.", "先创建歌单，再选择歌单保存歌曲。"); color: AppTheme.text; wrapMode: Text.WordWrap }
             Repeater {

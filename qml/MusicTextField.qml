@@ -29,12 +29,12 @@ LiquidTextField {
         Accessible.name: Language.text("Clear search", "清除搜索")
         onClicked: { field.clear(); field.forceActiveFocus() }
     }
-    Image {
+    VectorIcon {
         visible: parent.searchField
         anchors.left: parent.left
         anchors.leftMargin: 12
         anchors.verticalCenter: parent.verticalCenter
         width: 14; height: 14
-        source: MusicColors.sidebarIconSource("search", parent.mutedTextColor)
+        name: "search"; color: parent.mutedTextColor
     }
 }

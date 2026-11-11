@@ -59,7 +59,7 @@ ScrollView {
         }
         Item { Layout.preferredHeight: page.bottomContentInset; Layout.fillWidth: true }
     }
-    LiquidDialog {
+    MusicDialog {
         id: removeFolder
         property string path: ""
         parent: Overlay.overlay; anchors.centerIn: parent; width: 420; modal: true

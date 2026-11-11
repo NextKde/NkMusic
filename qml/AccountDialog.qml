@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Kos.Ui
 import "UiLanguage.mjs" as Language
-LiquidDialog {
+MusicDialog {
     id: dialog
     required property var account
     property string provider: "netease"
@@ -32,7 +32,7 @@ LiquidDialog {
             text: dialog.provider === "bilibili" && Language.chinese() ? dialog.account.storageMessageZh : dialog.account.storageMessage
             visible: text.length > 0
         }
-        MusicActionButton {
+        LiquidDialogButton {
             Layout.fillWidth: true
             visible: !dialog.account.authenticated && ["waiting", "scanned", "generating", "checking", "restoring"].indexOf(dialog.account.state) < 0
             objectName: "reviewAccountGenerate"
@@ -40,18 +40,18 @@ LiquidDialog {
             enabled: dialog.provider !== "bilibili" || !dialog.account.storageBusy
             onClicked: dialog.account.beginLogin()
         }
-        MusicActionButton {
+        LiquidDialogButton {
             objectName: "reviewAccountCancel"
             Layout.fillWidth: true; visible: ["waiting", "scanned", "generating", "checking"].indexOf(dialog.account.state) >= 0
             text: Language.text("Cancel sign-in", "取消登录")
             onClicked: { dialog.account.cancelLogin(); dialog.close() }
         }
-        MusicActionButton {
+        LiquidDialogButton {
             Layout.fillWidth: true; visible: dialog.account.state === "error"
             enabled: dialog.provider !== "bilibili" || !dialog.account.storageBusy
             text: Language.text("Retry saved session", "重试恢复登录"); onClicked: dialog.account.retrySession()
         }
-        MusicActionButton {
+        LiquidDialogButton {
             Layout.fillWidth: true; visible: dialog.account.authenticated || dialog.account.cleanupRequired; text: dialog.account.authenticated ? Language.text("Sign out on this device", "退出此设备登录") : Language.text("Retry removing saved session", "重试移除已保存的登录信息")
             onClicked: dialog.account.logout()
         }

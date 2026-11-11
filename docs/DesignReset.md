@@ -1,5 +1,7 @@
 # Whole-app design correction — 2026-10-21
 
+Component styling follows the [2026-10-28 synchronized contract](ComponentContract.md), superseding older control, settings-row and popup guidance below.
+
 
 ## 2026-10-22 Gallery sync and sidebar specification
 

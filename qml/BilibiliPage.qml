@@ -50,7 +50,7 @@ Item {
             }
         }
     }
-    LiquidDialog {
+    MusicDialog {
         id: partsDialog; parent: Overlay.overlay; anchors.centerIn: parent
         title: Language.text("Video parts", "视频分 P"); width: 520; height: 400; modal: true; standardButtons: Dialog.Close
         contentItem: ListView {
