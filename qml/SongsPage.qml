@@ -96,7 +96,7 @@ ColumnLayout {
                 }
                 MusicActionButton { iconOnly: true;
                     objectName: page.albumView && row.index === 0 ? "reviewAlbumEnqueueFirst" : ""
-                    text: page.queueView ? "−" : "+"; implicitWidth: 34; implicitHeight: 30
+                    iconName: page.queueView ? "minus" : "plus"; implicitWidth: 34; implicitHeight: 30
                     Accessible.name: page.queueView ? Language.text("Remove from queue", "移出队列") : Language.text("Add to queue", "加入队列")
                     onClicked: { if (page.queueView) page.music.removeQueueRow(row.index); else if (page.albumView) page.music.enqueueAlbumRow(row.index); else if (page.onlineView) page.music.enqueueOnlineRow(row.index); else page.music.enqueueTrack(row.trackId) }
                 }
