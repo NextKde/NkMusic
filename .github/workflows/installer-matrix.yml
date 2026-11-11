@@ -45,10 +45,16 @@ jobs:
           docker pull "$IMAGE"
           docker image inspect "$IMAGE" > results/container-image.json
           docker run --rm -v "$PWD:/source:ro" -v "$PWD/results:/results" "$IMAGE" \
-            bash /source/kos-tests/tests/app-store/run-kmusic-container.sh \
+            bash -c '
+              set -euo pipefail
+              # Rolling Arch containers must be fully upgraded before installing packages.
+              if command -v pacman >/dev/null; then pacman -Syu --noconfirm; fi
+              exec bash "$@"
+            ' bash /source/kos-tests/tests/app-store/run-kmusic-container.sh \
             /source "$REVISION" /source/kos-tests/tests/app-store /results
           docker run --rm -v "$PWD:/source:ro" -v "$PWD/results:/results" "$IMAGE" bash -c '
             set -euo pipefail
+            if command -v pacman >/dev/null; then pacman -Syu --noconfirm; fi
             bash /source/kos-tests/tests/app-store/provision-kmusic-ci.sh > /results/local-provision.log 2>&1
             useradd -m installer-test
             chown -R installer-test:installer-test /results
@@ -84,7 +90,7 @@ jobs:
           docker run --rm -v "$PWD:/source:ro" "$IMAGE" bash -c '
             set -euo pipefail
             if command -v pacman >/dev/null; then
-              pacman -Sy --noconfirm --needed python git cmake make shadow
+              pacman -Syu --noconfirm --needed python git cmake make shadow
             else
               apt-get update
               apt-get install -y --no-install-recommends python3 git cmake make passwd

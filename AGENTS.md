@@ -1,5 +1,12 @@
 # Contributor instructions
 
+## Window control ownership (2026-11-11)
+
+- The user's current instruction supersedes the old self-drawn decoration rule:
+  advertise control slots through the NextKde protocol and let KWin draw after
+  acknowledgement. Keep client controls only as fallback on unsupported desktops.
+  This does not restore native desktop blur or change content material rules.
+
 ## Current user overrides (2026-10-23)
 
 - Latest component contract: docs/ComponentContract.zh-CN.md (English: docs/ComponentContract.md), synchronized on 2026-10-28. It supersedes older control, popup, settings-row and tooltip styling guidance.
