@@ -455,8 +455,8 @@ ApplicationWindow {
                     id: headerActions
                     shadowEnabled: false
                     Layout.preferredWidth: platformButton.visible ? 72 : 36
-                    implicitHeight: 32; materialForm: false
-                    Layout.preferredHeight: 32; Layout.alignment: Qt.AlignVCenter
+                    materialForm: false
+                    Layout.preferredHeight: implicitHeight; Layout.alignment: Qt.AlignVCenter
                     topInset: 0; bottomInset: 0; leftInset: 0; rightInset: 0
                     backdrop: sidebarBackdrop; liquidIntensity: "strong"
                     scale: 1; hoverEnabled: false
