@@ -1,5 +1,12 @@
 # Contributor instructions
 
+## Window control ownership (2026-11-11)
+
+- The user's current instruction supersedes the old self-drawn decoration rule:
+  advertise control slots through the NextKde protocol and let KWin draw after
+  acknowledgement. Keep client controls only as fallback on unsupported desktops.
+  This does not restore native desktop blur or change content material rules.
+
 ## Current user overrides (2026-10-23)
 
 - Bilibili research may examine Biu backend architecture/protocol flow, but do not

@@ -19,7 +19,7 @@ Item {
         }
         onDoubleClicked: { moveArmed = false; chrome.targetWindow.toggleMaximized() }
     }
-    KosWindowControls {
+    MusicWindowControls {
         id: controls
         targetWindow: chrome.targetWindow; maximizeMode: true
         circleSize: 14; buttonWidth: 14; buttonHeight: 14; spacing: 14
